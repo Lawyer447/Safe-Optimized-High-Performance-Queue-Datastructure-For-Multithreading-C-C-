@@ -20,4 +20,4 @@ example.front();
 example.empty();
 example.push(5);
 example.pop();
-
+example.sizeQ();
