@@ -5,7 +5,7 @@
 
 - Very easy to use
 - Optimized low level
-- Thread Save
+- Thread Safee
 - High Performance
 
 How to Use:
