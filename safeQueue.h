@@ -12,10 +12,10 @@ namespace safe {
 	template <typename G>
 	class sQueue {
 
-		G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
-		G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
+		volatile G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
+		volatile G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
 		volatile size_t size = 0; //size of the queue  // volatile to protect from compiler optimization
-		mX sQmutex; // mutex to solve thread/data races and undefined behavior
+		mX sQmutex; // mutex to solve thread races and undefined behavior
 
 	 public:
 		sQueue<G>() = default;
@@ -49,9 +49,9 @@ namespace safe {
 		inline void pop() {
 			lG po_p(sQmutex);
 			if (size == 0) {
-				if (temp_Mem != nullptr) {
-					delete[] temp_Mem;
-					temp_Mem = nullptr;
+				if (main_Mem != nullptr) {
+					delete[] main_Mem;
+					main_Mem = nullptr;
 				}
 				else {
 					std::cerr << "\nPopping empty queue / Error at Line : " << __LINE__ << " inside File : " << __FILE__ << "\n";
