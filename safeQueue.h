@@ -13,7 +13,7 @@ namespace safe {
 		volatile G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
 		volatile G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
 		volatile size_t size = 0; //size of the queue  // volatile to protect from compiler optimization
-		mX sQmutex; // mutex to solve thread races and undefined behavior
+		mX sQmutex; // mutex to solve data\thread races and undefined behavior
 
 	 public:
 		sQueue<G>() = default;
