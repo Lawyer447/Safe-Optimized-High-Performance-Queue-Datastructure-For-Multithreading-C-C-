@@ -27,13 +27,13 @@ namespace safe {
 			}
 			else {
 				temp_Mem = new G[size];
-				std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
+				std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
 				delete[] main_Mem;
 				main_Mem = nullptr;
 				main_Mem = new G[(size + 1)];
 
 				*(main_Mem + 0) = std::move(value);
-				std::memcpy((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(G) * size);
+				std::memmove((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(G) * size);
 				delete[] temp_Mem;
 				temp_Mem = nullptr;
 				++size;
@@ -52,17 +52,17 @@ namespace safe {
 					temp_Mem = nullptr;
 				}
 				else {
-					std::cerr << "\nPopping empty queue\n";
+					std::cerr << "\nPopping empty queue / Error at Line : " << __LINE__ << " inside File : " << __FILE__ << "\n";
 					terminate();
 				}
 			}
 			temp_Mem = new G[size];
-			std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
+			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
 			delete[] main_Mem;
 			main_Mem = nullptr;
 			main_Mem = new G[size - 1];
 			--size;
-			std::memcpy((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(G) * size);
+			std::memmove((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(G) * size);
 			delete[] temp_Mem;
 			temp_Mem = nullptr;
 			
