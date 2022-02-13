@@ -6,19 +6,22 @@
 #include <utility>
 //typedef for easier use
 using mX = std::mutex;
+using lG = std::lock_guard<mX>;
+
 namespace safe {
 	template <typename G>
 	class sQueue {
 
-		volatile G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
-		volatile G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
+		G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
+		G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
 		volatile size_t size = 0; //size of the queue  // volatile to protect from compiler optimization
-		mX sQmutex; // mutex to solve data\thread races and undefined behavior
+		mX sQmutex; // mutex to solve thread/data races and undefined behavior
 
 	 public:
 		sQueue<G>() = default;
+
 		inline void push(G value) {
-			std::lock_guard<mX> puh(sQmutex);
+			lG puh1(sQmutex);
 			//operation
 			if (size == 0) {
 				++size;
@@ -39,13 +42,12 @@ namespace safe {
 				++size;
 
 			}
-			
+
 
 
 		}
-
 		inline void pop() {
-			std::lock_guard<mX> po_p(sQmutex);
+			lG po_p(sQmutex);
 			if (size == 0) {
 				if (temp_Mem != nullptr) {
 					delete[] temp_Mem;
@@ -67,9 +69,8 @@ namespace safe {
 			temp_Mem = nullptr;
 			
 		}
-
 		inline G front() {
-			std::lock_guard<mX> fr(sQmutex);
+			lG fr(sQmutex);
 			if (main_Mem == nullptr) {
 				std::cerr << "\nNo element in sQUEUE, No Value To Return From Front() Function / Error at Line: " << __LINE__ << " inside File: " << __FILE__ << "\n";
 				terminate();
@@ -78,10 +79,13 @@ namespace safe {
 			
 			return std::move(main_Mem[0]);
 		}
-
 		inline bool empty() {
-			std::lock_guard<mX> em(sQmutex);
+			lG em(sQmutex);
 			return std::move(size <= 0);
+		}
+		inline size_t sizeQ() {
+			lG sizlg(sQmutex);
+			return std::move(this->size);
 		}
 
 		~sQueue() {
