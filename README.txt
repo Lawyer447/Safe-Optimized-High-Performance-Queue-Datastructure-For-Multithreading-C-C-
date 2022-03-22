@@ -3,6 +3,7 @@
 
 - For C++17 C++20
 
+- For Multithreading, prevents data races
 - Very easy to use
 - Optimized low level
 - Thread Safe
