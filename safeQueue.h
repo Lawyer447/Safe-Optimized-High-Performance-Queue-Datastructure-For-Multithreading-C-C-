@@ -12,9 +12,9 @@ namespace safe {
 	template <typename G>
 	class sQueue {
 
-		volatile G* main_Mem = nullptr; //pointer to current and new memory // volatile to protect from compiler optimization
-		volatile G* temp_Mem = nullptr; //temporary pointer to old memory  // volatile to protect from compiler optimization
-		volatile size_t size = 0; //size of the queue  // volatile to protect from compiler optimization
+		G* main_Mem = nullptr;
+		G* temp_Mem = nullptr;
+		size_t size = 0;
 		mX sQmutex; // mutex to solve thread races and undefined behavior
 
 	 public:
@@ -77,15 +77,15 @@ namespace safe {
 
 			}
 			
-			return std::move(main_Mem[0]);
+			return (main_Mem[0]);
 		}
 		inline bool empty() {
 			lG em(sQmutex);
-			return std::move(size <= 0);
+			return (size <= 0);
 		}
 		inline size_t sizeQ() {
 			lG sizlg(sQmutex);
-			return std::move(this->size);
+			return this->size;
 		}
 
 		~sQueue() {
