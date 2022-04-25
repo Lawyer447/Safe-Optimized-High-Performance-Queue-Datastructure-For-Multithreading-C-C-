@@ -5,40 +5,37 @@
 #include <mutex>
 #include <utility>
 //typedef for easier use
-using mX = std::mutex;
-using lG = std::lock_guard<mX>;
+using lg = std::lock_guard<std::mutex>;
+
+//V1.1
 
 namespace safe {
-	template <typename G>
+	
+	template <typename T>
 	class sQueue {
 
-		G* main_Mem = nullptr;
-		G* temp_Mem = nullptr;
-		size_t size = 0;
-		mX sQmutex; // mutex to solve thread races and undefined behavior
+		T* main_Mem = nullptr;
+		T* temp_Mem = nullptr;
+		uint_fast64_t size = 0;
+		std::mutex sQmutex;
 
-	 public:
-		sQueue<G>() = default;
+	public:
+		sQueue<T>() = default;
 
-		inline void push(G value) {
-			lG puh1(sQmutex);
-			//operation
+		inline void push(T value) {
+			lg puh1(sQmutex);
 			if (size == 0) {
-				++size;
-				main_Mem = new G[size];
+				main_Mem = new T[++size];
 				*main_Mem = std::move(value);
 			}
 			else {
-				temp_Mem = new G[size];
-				std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
+				temp_Mem = new T[size];
+				std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 				delete[] main_Mem;
-				main_Mem = nullptr;
-				main_Mem = new G[(size + 1)];
-
-				*(main_Mem + 0) = std::move(value);
-				std::memmove((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(G) * size);
+				main_Mem = new T[(size + 1)];
+				*main_Mem = std::move(value);
+				std::memcpy((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(T) * size);
 				delete[] temp_Mem;
-				temp_Mem = nullptr;
 				++size;
 
 			}
@@ -47,50 +44,40 @@ namespace safe {
 
 		}
 		inline void pop() {
-			lG po_p(sQmutex);
+			lg po_p(sQmutex);
 			if (size == 0) {
 				if (main_Mem != nullptr) {
 					delete[] main_Mem;
-					main_Mem = nullptr;
 				}
 				else {
-					std::cerr << "\nPopping empty queue / Error at Line : " << __LINE__ << " inside File : " << __FILE__ << "\n";
-					terminate();
+				 exit(-1); //popping empty Queue
 				}
 			}
-			temp_Mem = new G[size];
-			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(G) * size);
+			temp_Mem = new T[size];
+			std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 			delete[] main_Mem;
-			main_Mem = nullptr;
-			main_Mem = new G[size - 1];
-			--size;
-			std::memmove((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(G) * size);
+			main_Mem = new T[--size];
+			std::memcpy((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(T) * size);
 			delete[] temp_Mem;
-			temp_Mem = nullptr;
-			
 		}
-		inline G front() {
-			lG fr(sQmutex);
+		inline T front() {
+			lg fr(sQmutex);
 			if (main_Mem == nullptr) {
-				std::cerr << "\nNo element in sQUEUE, No Value To Return From Front() Function / Error at Line: " << __LINE__ << " inside File: " << __FILE__ << "\n";
-				terminate();
-
+				exit(-1); //no element in Queue
 			}
-			
-			return (main_Mem[0]);
+			return main_Mem[0];
 		}
-		inline bool empty() {
-			lG em(sQmutex);
-			return (size <= 0);
+		FORCEINLINE bool empty() {
+			lg em(sQmutex);
+			return (size == 0);
 		}
-		inline size_t sizeQ() {
-			lG sizlg(sQmutex);
+		FORCEINLINE size_t sizeQ() {
+			lg sizlg(sQmutex);
 			return this->size;
 		}
 
 		~sQueue() {
 			delete[] main_Mem;
-			main_Mem = nullptr;
 		}
 	};
 
