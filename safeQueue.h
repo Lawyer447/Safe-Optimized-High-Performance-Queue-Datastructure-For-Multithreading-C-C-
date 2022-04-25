@@ -1,26 +1,46 @@
 #ifndef SAFE_QUEUE_H
 #define SAFE_QUEUE_H
+/*
+-- cppLawyer --
+
+GitHub: https://github.com/cppLawyer/
+
+safe::sQueue --version <1.1>
+
+*/
+
 //dependencies
 #include <iostream>
 #include <mutex>
 #include <utility>
+
+
 //typedef for easier use
 using lg = std::lock_guard<std::mutex>;
-
-//V1.1
+using spInt = uint_fast64_t;
 
 namespace safe {
-	
 	template <typename T>
 	class sQueue {
 
 		T* main_Mem = nullptr;
 		T* temp_Mem = nullptr;
-		uint_fast64_t size = 0;
+		spInt size = 0;
 		std::mutex sQmutex;
 
 	public:
 		sQueue<T>() = default;
+		sQueue<T>(sQueue<T>& itemTocopy) {
+			lg p1(itemTocopy.sQmutex);//so there is no undefined behavior
+			//lg p2(this->sQmutex); not needed depends on situation
+			this->size = itemTocopy.size;
+			main_Mem[size];
+			for (spInt i = 0; i < size; ++i) {
+				main_Mem[i] = itemTocopy.main_Mem[i]; //deep copy
+			}
+		}//copy constructor 
+
+		sQueue<T>(sQueue<T>&& itemTocopy) = delete;
 
 		inline void push(T value) {
 			lg puh1(sQmutex);
@@ -46,13 +66,10 @@ namespace safe {
 		inline void pop() {
 			lg po_p(sQmutex);
 			if (size == 0) {
-				if (main_Mem != nullptr) {
-					delete[] main_Mem;
-				}
-				else {
-				 exit(-1); //popping empty Queue
-				}
+				std::cerr << "\nPopping empty Queue\n";
+				exit(-1); //popping empty Queue
 			}
+
 			temp_Mem = new T[size];
 			std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 			delete[] main_Mem;
@@ -62,7 +79,8 @@ namespace safe {
 		}
 		inline T front() {
 			lg fr(sQmutex);
-			if (main_Mem == nullptr) {
+			if (size == 0) {
+				std::cerr << "\nNo element in Queue\n";
 				exit(-1); //no element in Queue
 			}
 			return main_Mem[0];
