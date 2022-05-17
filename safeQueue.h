@@ -32,7 +32,6 @@ namespace safe {
 		sQueue<T>() = default;
 		sQueue<T>(sQueue<T>& itemTocopy) {
 			lg p1(itemTocopy.sQmutex);//so there is no undefined behavior
-			//lg p2(this->sQmutex); not needed depends on situation
 			this->size = itemTocopy.size;
 			main_Mem[size];
 			for (spInt i = 0; i < size; ++i) {
