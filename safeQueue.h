@@ -84,11 +84,11 @@ namespace safe {
 			}
 			return main_Mem[0];
 		}
-		FORCEINLINE bool empty() {
+		inline bool empty() {
 			lg em(sQmutex);
 			return (size == 0);
 		}
-		FORCEINLINE size_t sizeQ() {
+		inline size_t sizeQ() {
 			lg sizlg(sQmutex);
 			return this->size;
 		}
