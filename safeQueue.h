@@ -49,11 +49,11 @@ namespace safe {
 			}
 			else {
 				temp_Mem = new T[size];
-				std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
+				std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 				delete[] main_Mem;
 				main_Mem = new T[(size + 1)];
 				*main_Mem = std::move(value);
-				std::memcpy((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(T) * size);
+				std::memmove((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(T) * size);
 				delete[] temp_Mem;
 				++size;
 
@@ -70,10 +70,10 @@ namespace safe {
 			}
 
 			temp_Mem = new T[size];
-			std::memcpy((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
+			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 			delete[] main_Mem;
 			main_Mem = new T[--size];
-			std::memcpy((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(T) * size);
+			std::memmove((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(T) * size);
 			delete[] temp_Mem;
 		}
 		inline T front() {
