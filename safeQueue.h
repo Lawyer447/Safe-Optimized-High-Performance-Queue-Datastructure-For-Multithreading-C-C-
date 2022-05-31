@@ -33,7 +33,7 @@ namespace safe {
 		sQueue<T>(sQueue<T>& itemTocopy) {
 			lg p1(itemTocopy.sQmutex);//so there is no undefined behavior
 			this->size = itemTocopy.size;
-			main_Mem[size];
+			main_Mem = new T[size];
 			for (spInt i = 0; i < size; ++i) {
 				main_Mem[i] = itemTocopy.main_Mem[i]; //deep copy
 			}
