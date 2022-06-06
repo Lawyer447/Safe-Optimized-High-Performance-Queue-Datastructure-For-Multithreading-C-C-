@@ -16,9 +16,20 @@ safe::sQueue<YOUR_DATA_TYPE> Given_Name;
 
 Example:
 
+```
+#include <iostream>
+#include "safeQueue.h"
+
+int main(){
+
 safe::sQueue<int> example;
 example.front();
 example.empty();
 example.push(5);
 example.pop();
 example.sizeQ();
+
+return 0;
+}
+
+```
