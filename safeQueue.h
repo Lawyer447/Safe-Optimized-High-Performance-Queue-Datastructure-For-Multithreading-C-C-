@@ -1,48 +1,35 @@
 #ifndef SAFE_QUEUE_H
 #define SAFE_QUEUE_H
-/*
--- cppLawyer --
 
-GitHub: https://github.com/cppLawyer/
-
-safe::sQueue --version <1.1>
-
-*/
-
-//dependencies
 #include <iostream>
 #include <mutex>
 #include <utility>
 
+/*
+- cppLawyer
+- V2
+*/
 
-//typedef for easier use
-using lg = std::lock_guard<std::mutex>;
-using spInt = uint_fast64_t;
-
+#ifdef _DEBUG
 namespace safe {
 	template <typename T>
 	class sQueue {
-
 		T* main_Mem = nullptr;
 		T* temp_Mem = nullptr;
-		spInt size = 0;
+		uint_fast64_t size = 0;
 		std::mutex sQmutex;
-
 	public:
 		sQueue<T>() = default;
 		sQueue<T>(sQueue<T>& itemTocopy) {
-			lg p1(itemTocopy.sQmutex);//so there is no undefined behavior
+			std::lock_guard<std::mutex> p1(itemTocopy.sQmutex);//so there is no undefined behavior
 			this->size = itemTocopy.size;
 			main_Mem = new T[size];
-			for (spInt i = 0; i < size; ++i) {
-				main_Mem[i] = itemTocopy.main_Mem[i]; //deep copy
-			}
-		}//copy constructor 
-
+			for (uint_fast64_t i = 0; i < size; ++i)
+				main_Mem[i] = itemTocopy.main_Mem[i];
+		}
 		sQueue<T>(sQueue<T>&& itemTocopy) = delete;
-
 		inline void push(T value) {
-			lg puh1(sQmutex);
+			std::lock_guard<std::mutex> puh1(sQmutex);
 			if (size == 0) {
 				main_Mem = new T[++size];
 				*main_Mem = std::move(value);
@@ -56,19 +43,14 @@ namespace safe {
 				std::memmove((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(T) * size);
 				delete[] temp_Mem;
 				++size;
-
 			}
-
-
-
 		}
 		inline void pop() {
-			lg po_p(sQmutex);
+			std::lock_guard<std::mutex> po_p(sQmutex);
 			if (size == 0) {
 				std::cerr << "\nPopping empty Queue\n";
 				exit(-1); //popping empty Queue
 			}
-
 			temp_Mem = new T[size];
 			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 			delete[] main_Mem;
@@ -77,7 +59,7 @@ namespace safe {
 			delete[] temp_Mem;
 		}
 		inline T front() {
-			lg fr(sQmutex);
+			std::lock_guard<std::mutex> fr(sQmutex);
 			if (size == 0) {
 				std::cerr << "\nNo element in Queue\n";
 				exit(-1); //no element in Queue
@@ -85,18 +67,78 @@ namespace safe {
 			return main_Mem[0];
 		}
 		inline bool empty() {
-			lg em(sQmutex);
+			std::lock_guard<std::mutex> em(sQmutex);
 			return (size == 0);
 		}
 		inline size_t sizeQ() {
-			lg sizlg(sQmutex);
+			std::lock_guard<std::mutex> sizlg(sQmutex);
 			return this->size;
 		}
-
 		~sQueue() {
 			delete[] main_Mem;
 		}
 	};
 
+}
+#else
+namespace safe {
+	template <typename T>
+	class sQueue {
+		T* main_Mem = nullptr;
+		T* temp_Mem = nullptr;
+		uint_fast64_t size = 0;
+		std::mutex sQmutex;
+	public:
+		sQueue<T>() = default;
+		sQueue<T>(sQueue<T>& itemTocopy) {
+			std::lock_guard<std::mutex> p1(itemTocopy.sQmutex);
+			this->size = itemTocopy.size;
+			main_Mem = new T[size];
+			for (uint_fast64_t i = 0; i < size; ++i)
+				main_Mem[i] = itemTocopy.main_Mem[i];
+		}
+		sQueue<T>(sQueue<T>&& itemTocopy) = delete;
+		inline void push(T value) noexcept{
+			std::lock_guard<std::mutex> puh1(sQmutex);
+			if (size == 0) {
+				main_Mem = new T[++size];
+				*main_Mem = std::move(value);
+			}
+			else {
+				temp_Mem = new T[size];
+				std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
+				delete[] main_Mem;
+				main_Mem = new T[(size + 1)];
+				*main_Mem = std::move(value);
+				std::memmove((void*)(main_Mem + 1), (void*)temp_Mem, sizeof(T) * size);
+				delete[] temp_Mem;
+				++size;
+			}
+		}
+		inline void pop() noexcept{
+			std::lock_guard<std::mutex> po_p(sQmutex);
+			temp_Mem = new T[size];
+			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
+			delete[] main_Mem;
+			main_Mem = new T[--size];
+			std::memmove((void*)main_Mem, (void*)(temp_Mem + 1), sizeof(T) * size);
+			delete[] temp_Mem;
+		}
+		inline T front() noexcept{
+			std::lock_guard<std::mutex> fr(sQmutex);
+			return main_Mem[0];
+		}
+		inline bool empty() noexcept{
+			std::lock_guard<std::mutex> em(sQmutex);
+			return (size == 0);
+		}
+		inline size_t sizeQ() noexcept{
+			std::lock_guard<std::mutex> sizlg(sQmutex);
+			return this->size;
+		}
+		~sQueue() {
+			delete[] main_Mem;
+		}
+	};
 }
 #endif
