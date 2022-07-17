@@ -21,7 +21,7 @@ namespace safe {
 	public:
 		sQueue<T>() = default;
 		sQueue<T>(sQueue<T>& itemTocopy) {
-			std::lock_guard<std::mutex> p1(itemTocopy.sQmutex);//so there is no undefined behavior
+			std::lock_guard<std::mutex> lg(itemTocopy.sQmutex);//so there is no undefined behavior
 			this->size = itemTocopy.size;
 			main_Mem = new T[size];
 			for (uint_fast64_t i = 0; i < size; ++i)
@@ -29,7 +29,7 @@ namespace safe {
 		}
 		sQueue<T>(sQueue<T>&& itemTocopy) = delete;
 		inline void push(T value) {
-			std::lock_guard<std::mutex> puh1(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			if (size == 0) {
 				main_Mem = new T[++size];
 				*main_Mem = std::move(value);
@@ -46,7 +46,7 @@ namespace safe {
 			}
 		}
 		inline void pop() {
-			std::lock_guard<std::mutex> po_p(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			if (size == 0) {
 				std::cerr << "\nPopping empty Queue\n";
 				exit(-1); //popping empty Queue
@@ -59,7 +59,7 @@ namespace safe {
 			delete[] temp_Mem;
 		}
 		inline T front() {
-			std::lock_guard<std::mutex> fr(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			if (size == 0) {
 				std::cerr << "\nNo element in Queue\n";
 				exit(-1); //no element in Queue
@@ -67,11 +67,11 @@ namespace safe {
 			return main_Mem[0];
 		}
 		inline bool empty() {
-			std::lock_guard<std::mutex> em(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			return (size == 0);
 		}
 		inline size_t sizeQ() {
-			std::lock_guard<std::mutex> sizlg(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			return this->size;
 		}
 		~sQueue() {
@@ -91,7 +91,7 @@ namespace safe {
 	public:
 		sQueue<T>() = default;
 		sQueue<T>(sQueue<T>& itemTocopy) {
-			std::lock_guard<std::mutex> p1(itemTocopy.sQmutex);
+			std::lock_guard<std::mutex> lg(itemTocopy.sQmutex);
 			this->size = itemTocopy.size;
 			main_Mem = new T[size];
 			for (uint_fast64_t i = 0; i < size; ++i)
@@ -99,7 +99,7 @@ namespace safe {
 		}
 		sQueue<T>(sQueue<T>&& itemTocopy) = delete;
 		inline void push(T value) noexcept{
-			std::lock_guard<std::mutex> puh1(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			if (size == 0) {
 				main_Mem = new T[++size];
 				*main_Mem = std::move(value);
@@ -116,7 +116,7 @@ namespace safe {
 			}
 		}
 		inline void pop() noexcept{
-			std::lock_guard<std::mutex> po_p(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			temp_Mem = new T[size];
 			std::memmove((void*)temp_Mem, (void*)main_Mem, sizeof(T) * size);
 			delete[] main_Mem;
@@ -125,15 +125,15 @@ namespace safe {
 			delete[] temp_Mem;
 		}
 		inline T front() noexcept{
-			std::lock_guard<std::mutex> fr(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			return main_Mem[0];
 		}
 		inline bool empty() noexcept{
-			std::lock_guard<std::mutex> em(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			return (size == 0);
 		}
 		inline size_t sizeQ() noexcept{
-			std::lock_guard<std::mutex> sizlg(sQmutex);
+			std::lock_guard<std::mutex> lg(sQmutex);
 			return this->size;
 		}
 		~sQueue() {
